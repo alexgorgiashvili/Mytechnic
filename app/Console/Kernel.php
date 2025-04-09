@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\AllClear;
 use Illuminate\Support\Facades\Log;
+use App\Console\Commands\SyncWooStock;
 use App\Jobs\CheckInstallmentOrderStatus;
 use App\Services\CredoInstallmentService;
 use Illuminate\Console\Scheduling\Schedule;
@@ -12,7 +13,8 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     protected $commands = [
-        AllClear::class
+        AllClear::class,
+        SyncWooStock::class,
     ];
 
     protected function schedule(Schedule $schedule)
@@ -24,7 +26,10 @@ class Kernel extends ConsoleKernel
         // })->everyFifteenMinutes();
         
         // Schedule the job for checking installment order status
-        $schedule->command('installments:check')->everyMinutes();
+        // $schedule->command('installments:check')->everyMinutes();
+
+        $schedule->command('stock:sync-one')->everyMinute();
+
 
 
         

@@ -61,19 +61,40 @@
 							<div class="product-stock-delivery" v-if="productDetails.special_discount_check > 0 || (productType() && productDetails.is_digital != 1 && productDetails.stock_visibility != 'hide_stock')">
 
 
-								<div v-if="productType() && productDetails.is_digital != 1 && productDetails.stock_visibility != 'hide_stock'">
+								<!-- <div v-if="productType() && productDetails.is_digital != 1 && productDetails.stock_visibility != 'hide_stock'">
 									<div class="stock-in" v-if="productDetails.current_stock > 0 ">
 										<span class="mdi mdi-check-circle-outline"></span>
 										<div class="text-left">
 											<h5 class="days">{{ lang.in_stock }}</h5>
-											<!-- <h5 v-if="productDetails.stock_visibility == 'visible_with_quantity'">{{ stockFind().stock }}</h5> -->
 										</div>
 									</div>
 									<div v-else class="stock-out">
 										<span class="mdi mdi-close-circle-outline"></span>
 										<h5>{{ lang.stock_out }}</h5>
 									</div>
+								</div> -->
+							
+							
+							
+								<div v-if="productType() && productDetails.is_digital != 1 && productDetails.stock_visibility != 'hide_stock'">
+									<div v-if="liveStockStatusKey === 'in_stock'" class="stock-in">
+										<span class="mdi mdi-check-circle-outline"></span>
+										<div class="text-left">
+											<h5 class="days">{{ lang.in_stock }}</h5>
+										</div>
+									</div>
+									
+									<div v-else-if="liveStockStatusKey === 'stock_out'" class="stock-out">
+										<span class="mdi mdi-close-circle-outline"></span>
+										<h5>{{ lang.stock_out }}</h5>
+									</div>
 								</div>
+
+
+
+
+
+
 
 								<div v-if="productDetails.special_discount_check > 0" class="sg-countdown">
 									<ul class="countdown">
@@ -677,16 +698,18 @@ export default {
 			hours: 0,
 			minutes: 0,
 			seconds: 0,
-      index: null,
-      large_image: '',
-      current_index: 0,
-      colors: [],
-      attribute_list: [],
-      attribute_values: [],
-      attribute_selector: 0,
-      selected_stock: [],
-      allowed_attributes: [],
-      attributes_fetched : false
+			index: null,
+			large_image: '',
+			current_index: 0,
+			colors: [],
+			attribute_list: [],
+			attribute_values: [],
+			attribute_selector: 0,
+			selected_stock: [],
+			allowed_attributes: [],
+			attributes_fetched : false,
+			liveStockStatusKey: '', // new reactive property for stock text
+
 		};
 	},
 	components: {
@@ -715,30 +738,56 @@ export default {
 				this.getAttributes();
 			}
 		}
+
 	},
 
 	watch: {
-		productDetails() {
-			if (this.productDetails && this.productDetails.form) {
-				if (this.productDetails.special_discount_check > 0) {
+		// productDetails() {
+		// 	if (this.productDetails && this.productDetails.form) {
+		// 		if (this.productDetails.special_discount_check > 0) {
+		// 			this.setCountDown();
+		// 		}
+		// 		document.title = this.productDetails.product_name;
+		// 		// console.log(this.productDetails);
+		// 		this.product_form.quantity = this.productDetails.form.quantity;
+		// 		this.product_form.sku = this.productDetails.form.sku;
+		// 		this.product_form.variants_name = this.productDetails.form.variants_name;
+		// 		this.product_form.id = this.productDetails.form.id;
+		// 		this.large_image = this.productDetails.gallery.large[0];
+		// 		if(this.productDetails.attribute_selector == 1)
+		// 		{
+		// 			this.getAttributes();
+		// 		}
+		// 	}
+		// },
+    
+	    productDetails(newValue) {
+			if (newValue && newValue.form) {
+				if (newValue.special_discount_check > 0) {
 					this.setCountDown();
 				}
-				document.title = this.productDetails.product_name;
-				// console.log(this.productDetails);
-				this.product_form.quantity = this.productDetails.form.quantity;
-				this.product_form.sku = this.productDetails.form.sku;
-				this.product_form.variants_name = this.productDetails.form.variants_name;
-				this.product_form.id = this.productDetails.form.id;
-				this.large_image = this.productDetails.gallery.large[0];
-				if(this.productDetails.attribute_selector == 1)
-				{
+				document.title = newValue.product_name;
+				this.product_form.quantity = newValue.form.quantity;
+				this.product_form.sku = newValue.form.sku;
+				this.product_form.variants_name = newValue.form.variants_name;
+				this.product_form.id = newValue.form.id;
+				this.large_image = newValue.gallery.large[0];
+
+				if (newValue.attribute_selector == 1) {
 					this.getAttributes();
+				}
+
+				// Now set liveStockStatusKey based on current_stock after the data is available
+				if (newValue.current_stock > 0) {
+					this.liveStockStatusKey = 'in_stock';
+				} else {
+					this.liveStockStatusKey = 'stock_out';
 				}
 			}
 		},
-    index(){
-      console.log(this.index);
-    }
+		index(){
+		console.log(this.index);
+		}
 	},
 	computed: {
 		compareProducts() {
@@ -786,7 +835,7 @@ export default {
 			product_id: this.productDetails.id,
 			variant_ids: this.selected_stock
 		};
-		console.log(formData);
+		// console.log(formData);
 
 		let url = this.getUrl("find/variants");
 		axios.post(url, formData).then((response) => {
@@ -845,6 +894,8 @@ export default {
 				}
 				if (response.data.product_stock) {
 					// console.log(response.data.product_stock);
+					this.productDetails.current_stock = response.data.product_stock.current_stock;
+
 					this.productDetails.product_stock.current_stock = response.data.product_stock.current_stock;
 					this.productDetails.product_stock.sku = response.data.product_stock.sku;
 					this.productDetails.product_stock.name = response.data.product_stock.name;
@@ -852,10 +903,25 @@ export default {
 					this.productDetails.product_stock.discount_percentage = response.data.product_stock.discount_percentage;
 					this.product_form.variants_ids = response.data.product_stock.variant_ids;
 					this.product_form.variants_name = response.data.product_stock.name;
+
+
+					if (this.productDetails.current_stock > 0) {
+						this.liveStockStatusKey = 'in_stock';
+					} else {
+						this.liveStockStatusKey = 'stock_out';
+					}
 				} else {
-					toastr.error(response.data.msg, this.lang.Error + " !!");
+
+					// Set stock out status
+					this.liveStockStatusKey = 'stock_out';
+
+					// Log the translated error message
+					const translatedMsg = this.lang.stock_out || response.data.msg;  // Default to English if translation isn't found
+
+					// Show toastr error with the translated message
+					toastr.error(translatedMsg, this.lang.Error + " !!");
 				}
-				}
+			}
 			});
 		},
 

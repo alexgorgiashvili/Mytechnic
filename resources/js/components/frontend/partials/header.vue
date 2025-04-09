@@ -153,8 +153,15 @@
 							</div>
 						</div>
 					</div>
-					<div class="user-option">
-						<ul class="global-list user-shop-option">
+					<div class="user-option d-flex justify-content-between align-items-center">
+
+						<a href="tel:595944448" class="icon d-flex align-items-center contact-info text-decoration-none">
+							<img alt="Phone Icon" class="img-fluid me-2" :src="getUrl('public/images/others/phone.svg')" />
+							<p class="mb-0 text-dark">595944448</p>
+						</a>
+
+						
+						<ul class="global-list user-shop-option d-flex align-items-center mb-0">
 
 							<li v-if="settings.language_switcher != 0">
 
@@ -169,26 +176,10 @@
 
 							</li>
 							
-							<li>
-								<router-link :to="{ name: 'wishlist' }" v-if="authUser && authUser.user_type == 'customer'">
-									<div class="icon"
-										><img alt="Compare Icon" class="img-fluid" :src="getUrl('public/images/others/wishlist.svg')" />
-										<!---->
-									</div>
-									<span class="badge" v-if="wishlists > 0">{{ wishlists }}</span>
-								</router-link>
-                				<a href="javascript:void(0)" v-else>
-									<div class="icon"
-										><img alt="Compare Icon" class="img-fluid" :src="getUrl('public/images/others/wishlist.svg')" />
-										<!---->
-									</div>
-									<span class="badge" v-if="wishlists > 0">{{ wishlists }}</span>
-								</a>
-							</li>
-
 							<li class="sg-dropdown cart">
 								<router-link :to="{ name: 'cart' }" class="">
-									<div class="icon"><img alt="bag Icon" class="img-fluid" :src="getUrl('public/images/others/bag.svg')" />
+									<div class="icon">
+										<img alt="bag Icon" class="img-fluid" :src="getUrl('public/images/others/bag.svg')" />
 										<span v-if="carts && carts.length > 0" class="badge">{{ carts.filter(cart => cart.is_buy_now == false).length }}</span>
 									</div>
 								</router-link>
@@ -207,7 +198,7 @@
 															{{ cart.product_name }}
 														</router-link>
 													</h3>
-                          <span v-if="cart.variant">{{ lang.Variant }} : {{ cart.variant }}</span>
+                          							<span v-if="cart.variant">{{ lang.Variant }} : {{ cart.variant }}</span>
 													<span class="price">{{ priceFormat(cart.price - cart.discount) }} x {{ cart.quantity }}</span>
 												</div>
 											</div>
@@ -224,12 +215,12 @@
 								</div>
 							</li>
 
-							<li class="compare-icon">
+							<!-- <li class="compare-icon">
 								<router-link :to="{ name: 'compare.list' }">
 									<div class="icon"><img :src="getUrl('public/images/others/compare.svg')" alt="List" /></div>
 									<span v-if="compareList > 0" class="badge">{{ compareList }}</span>
 								</router-link>
-							</li>
+							</li> -->
 
 							<!-- <li class="d-flex user-log-info">
 								<a :href="'tel:' + settings.header_contact_phone" class="live-chat">
@@ -250,13 +241,30 @@
 									<router-link :to="{ name: 'register' }">{{ lang.register }}</router-link>
 								</div>
 							</li> -->
-							<li class="d-flex user-log-info"  v-if="authUser && (authUser.user_type == 'admin' || authUser.user_type == 'staff')">
+							<!-- <li class="d-flex user-log-info"  v-if="authUser && (authUser.user_type == 'admin' || authUser.user_type == 'staff')">
 								<div class="text-left text">
 									<a class="d-block" :href="getUrl('admin/dashboard')">{{ lang.dashboard }}</a>
 									<a href="javascript:void(0)" @click="logout"> {{ lang.logout }}</a>
 								</div>
 								
-							</li>
+							</li> -->
+
+											<!-- <li>
+								<router-link :to="{ name: 'wishlist' }" v-if="authUser && authUser.user_type == 'customer'">
+									<div class="icon"
+										><img alt="Compare Icon" class="img-fluid" :src="getUrl('public/images/others/wishlist.svg')" />
+										
+									</div>
+									<span class="badge" v-if="wishlists > 0">{{ wishlists }}</span>
+								</router-link>
+                				<a href="javascript:void(0)" v-else>
+									<div class="icon"
+										><img alt="Compare Icon" class="img-fluid" :src="getUrl('public/images/others/wishlist.svg')" />
+										
+									</div>
+									<span class="badge" v-if="wishlists > 0">{{ wishlists }}</span>
+								</a>
+							</li> -->
 
 
 						</ul>
@@ -801,6 +809,22 @@ export default {
 .user-option ul li a {
 	align-self: center;
 	font-size: 13px;
+}
+
+.contact-info {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  transition: color 0.3s ease;
+
+}
+
+.contact-info:hover {
+  color: #007bff; /* Optional: change color on hover */
+}
+.contact-info img {
+  width: 20px;
+  height: 20px;
 }
 
 </style>

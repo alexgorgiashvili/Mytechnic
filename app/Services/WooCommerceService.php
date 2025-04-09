@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\ProductLanguage;
+use Automattic\WooCommerce\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
@@ -18,6 +19,7 @@ class WooCommerceService
     protected $consumerSecret;
     protected $productLanguageRepo;
     protected $medias;
+    protected $woocommerce;
 
     public function __construct(ProductLanguageRepository $productLanguageRepo,MediaInterface $medias,)
     {
@@ -28,7 +30,26 @@ class WooCommerceService
         $this->productLanguageRepo = $productLanguageRepo;
         $this->medias = $medias;
 
+        $this->initializeClient();
+
     }
+
+    protected function initializeClient()
+    {
+        $this->woocommerce = new Client(
+            $this->apiUrl,
+            $this->consumerKey,
+            $this->consumerSecret,
+            [
+                'version' => 'wc/v3',
+                'timeout' => 30,
+                'verify_ssl' => false // Only for development, remove in production
+            ]
+        );
+    }
+
+ 
+  
 
     /**
      * Fetch all products from WooCommerce.
@@ -58,6 +79,57 @@ class WooCommerceService
 
         return $response->json();
     }
+
+    public function getAllProductStocks($perPage = 30, $page = 1)
+    {
+
+        $productId = 35968; // Replace with your product ID
+        $product = $this->woocommerce->get("products/{$productId}");
+        $variations = $this->woocommerce->get("products/{$productId}/variations", ['per_page' => 100]);
+
+        dd($variations);
+        $response = $this->woocommerce->get('products', [
+            'per_page' => $perPage,
+            'page' => $page
+        ]);
+        $stocks = [];
+    
+        foreach ($response as $product) {
+            if ($product->type === 'simple') {
+                $stocks[] = [
+                    'woo_id' => $product->id,
+                    'sku' => $product->sku,
+                    'stock_quantity' => $product->stock_quantity,
+                    'type' => 'simple',
+                    'name' => $product->name
+                ];
+            }
+    
+            if ($product->type === 'variable') {
+                // Fetch variations for this variable product
+                $variations = $this->woocommerce->get("products/{$product->id}/variations");
+    
+                foreach ($variations as $variation) {
+                    $variantName = $product->name;
+                    if (!empty($variation->attributes)) {
+                        $attrs = array_map(fn($a) => $a->option, $variation->attributes);
+                        $variantName .= ' - ' . implode(' / ', $attrs);
+                    }
+    
+                    $stocks[] = [
+                        'woo_id' => $variation->id,
+                        'sku' => $variation->sku,
+                        'stock_quantity' => $variation->stock_quantity,
+                        'type' => 'variation',
+                        'name' => $variantName
+                    ];
+                }
+            }
+        }
+    
+        return $stocks;
+    }
+    
 
     public function getProductVariations($productId, $perPage = 50)
     {

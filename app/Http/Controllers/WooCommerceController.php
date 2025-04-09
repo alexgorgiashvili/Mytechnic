@@ -38,44 +38,59 @@ class WooCommerceController extends Controller
 
     }
 
+    public function testFetchProductStocks()
+    {
 
-    // public function previewSimpleProductStockMismatches()
+        $productId= 36005;
+        // $variations = $this->wooCommerceService->getProductVariations($productId);
+        $stocks = $this->wooCommerceService->getAllProductStocks();  // Call the modified function
+        // Log::info('Fetched Product Stocks:', $stocks);  // Log the stock data
+
+        dd($stocks);
+        return response()->json($stocks);  // Return as a response for testing
+    }
+
+    // public function getProductAndVariantCount()
     // {
-    //     $jsonPath = storage_path('app/woocommerce_products.json');
-    //     $jsonData = json_decode(File::get($jsonPath), true);
-        
-    //     // Extract just the WooCommerce IDs from JSON (for matching)
-    //     $wooProductIds = collect($jsonData)
-    //         ->filter(fn($item) => empty($item['variations']))
-    //         ->pluck('id')
-    //         ->toArray();
-        
-    //     // Get matching products WITH THEIR STOCK AND PRICE from your database
-    //     $products = Product::whereIn('barcode', $wooProductIds)
-    //         ->get(['id', 'barcode', 'current_stock', 'price']); // Include all fields you need
-        
-    //     // Prepare productstocks data using YOUR PRODUCT DATA
-    //     $stockRecords = $products->map(function ($product) {
-    //         return [
-    //             'product_id' => $product->id,
-    //             'sku' => $product->barcode,
-    //             'current_stock' => $product->current_stock, // From your products table
-    //             'price' => $product->price, // From your products table
-    //             'created_at' => now(),
-    //             'updated_at' => now(),
-    //             // Add any other fields you need from products table
-    //         ];
-    //     })->toArray();
-        
-    //     // Batch insert
-    //     if (!empty($stockRecords)) {
-    //         DB::table('product_stocks')->insert($stockRecords);
+
+    //     $stocks = $this->wooCommerceService->getAllProductStocks();  // Call the modified function
+    //     dd($stocks);
+    //     $page = 1;
+    //     $totalProducts = 0;
+    //     $totalVariants = 0;
+
+    //     while ($page <= 10) {  // Adjust the number of pages as needed
+    //         $products = $this->wooCommerceService->getAllProductStocks(30, $page);  // Fetch 30 products per page
+            
+    //         if (empty($products)) {
+    //             break;  // Exit the loop if no more data is returned
+    //         }
+
+    //         // Count the products
+    //         $totalProducts += count($products);
+
+    //         // Count the variants within each product
+    //         foreach ($products as $product) {
+    //             if (isset($product['variations']) && is_array($product['variations'])) {
+    //                 $totalVariants += count($product['variations']);
+    //             }
+    //         }
+
+    //         $page++;  // Increment the page number
     //     }
-        
-    //     // Output results
-    //     $createdCount = count($stockRecords);
-    //     echo "Successfully created {$createdCount} product stock records using local product data";
+
+    //     Log::info('Total Products: ' . $totalProducts);  // Log the total number of products
+    //     Log::info('Total Variants: ' . $totalVariants);  // Log the total number of variants
+
+    //     return response()->json([
+    //         'total_products' => $totalProducts,
+    //         'total_variants' => $totalVariants
+    //     ]);  // Return the total products and variants
     // }
+
+
+
+
 
 
 
@@ -93,7 +108,16 @@ class WooCommerceController extends Controller
         $jsonPath = storage_path('app/woocommerce_products.json');
         $jsonData = json_decode(File::get($jsonPath), true);
         $response = collect($jsonData)->firstWhere('name', 'Apple iPad 5th Generation');
-        // $prod = Product::where('has_variant',0)->whereJsonLength('colors', '>', 0)->update(['has_variant' => 1]);
+        $wooProd = $this->wooCommerceService->getProductById(30646);
+        $prods = Product::doesntHave('stock')->get();
+        
+        // Optional: See the filtered result
+        dd($wooProd);
+             // Convert to plain array
+    
+    // dd($response);
+
+            // $prod = Product::where('has_variant',0)->whereJsonLength('colors', '>', 0)->update(['has_variant' => 1]);
         // $affectedRows = Product::where('selected_variants', '{"1":[]}')
         // ->update([
         //     'selected_variants' => [],
@@ -102,7 +126,6 @@ class WooCommerceController extends Controller
     
     // Output the number of updated records
     
-    dd($response);
         // Load local JSON
 
 
@@ -125,53 +148,11 @@ class WooCommerceController extends Controller
     
     }
 
-    // public function testing()
-    // {
-    //     // $prod = $this->wooCommerceService->getProductById(18380);
-    //     // dd($prod);
-    //     $jsonPath = storage_path('app/woocommerce_products.json');
-    //     $jsonData = json_decode(File::get($jsonPath), true);
-    
-    //     if (!is_array($jsonData)) {
-    //         Log::error("❌ Invalid JSON format.");
-    //         return 0;
-    //     }
-    
-    //     $jsonProducts = collect($jsonData)->keyBy('id');
-    //     $updatedCount = 0;
-    
-    //     // ✅ Get only simple products (no variants) from DB
-    //     $products =Product::where('has_variant', 0)->get();
 
-    //     dd($products);
-    
-    //     foreach ($products as $product) {
-    //         $wooId = (int) $product->barcode;
-    //         if (!$jsonProducts->has($wooId)) continue;
-    
-    //         $jsonItem = $jsonProducts[$wooId];
-    //         $jsonStock = isset($jsonItem['stock_quantity']) ? max(0, (int) $jsonItem['stock_quantity']) : 0;
-    
-    //         if ($product->current_stock !== $jsonStock) {
-    //             Log::info("🔁 Updating stock for '{$product->name}' (ID {$product->id}) from {$product->current_stock} → {$jsonStock}");
-    
-    //             $product->current_stock = $jsonStock;
-    //             $product->stock_visibility = $jsonStock > 0 ? 'visible_with_text' : 'hide_stock';
-    //             $product->save();
-    
-    //             $updatedCount++;
-    //         }
-    //     }
-    
-    //     Log::info("✅ Stock sync complete. Updated {$updatedCount} simple products.");
-    //     return $updatedCount;
-
-
-    // }
     
 
 
-    // public function fetchAndSaveProducts()
+    // public function fetchAndSaveProductsInJson()
     // {
     //     ini_set('max_execution_time', 0); // No time limit
     //     ini_set('memory_limit', '1G');
@@ -217,193 +198,44 @@ class WooCommerceController extends Controller
     
 
 
-// function getMissingProducts()
-// {
+    //get single product  by Woo Json
 
-//     $prod = Product::where('barcode','SKU-17590')->first();
-//     dd($prod);
-//     // Load the WooCommerce JSON file
-//     $jsonFilePath = storage_path('app/woocommerce_products.json');
+    public function fetchSaveSingleProduct()
+    {
+        // Load JSON data
+        $jsonPath = storage_path('app/woocommerce_products.json');
+        $jsonData = json_decode(File::get($jsonPath), true);
 
-//     if (!file_exists($jsonFilePath)) {
-//         return ['error' => 'WooCommerce JSON file not found.'];
-//     }
+        // Get product from JSON by ID
+        // $response = collect($jsonData)->firstWhere('id', 18193);
+        $response = collect($jsonData)->firstWhere('id',30646 );
 
-//     // Read and decode JSON
-//     $jsonData = file_get_contents($jsonFilePath);
-//     $products = json_decode($jsonData, true);
-
-//     if (!$products || !is_array($products)) {
-//         return ['error' => 'Invalid WooCommerce JSON data.'];
-//     }
-
-//     // Get SKUs from WooCommerce JSON
-//     $woocommerceSkus = array_column($products, 'sku');
-
-//     // Get SKUs from the database
-//     $dbSkus = DB::table('products')->pluck('barcode')->toArray();
-
-//     // Find missing SKUs (SKUs that exist in WooCommerce but not in DB)
-//     $missingSkus = array_diff($woocommerceSkus, $dbSkus);
-
-//     // Get full product details of missing SKUs
-//     $missingProducts = array_filter($products, function ($product) use ($missingSkus) {
-//         return in_array($product['sku'], $missingSkus);
-//     });
-
-//     // Save missing products to a file for reference
-//     Storage::put('woocommerce_missing_products.json', json_encode(array_values($missingProducts), JSON_PRETTY_PRINT));
-
-//     return [
-//         'total_missing' => count($missingProducts),
-//         'missing_skus' => array_values($missingSkus),
-//         'missing_products' => array_values($missingProducts),
-//         'saved_file' => 'storage/app/woocommerce_missing_products.json'
-//     ];
-// }
-
-// public function saveMissingProductsByWooId()
-// {
-//     $jsonPath = storage_path('app/woocommerce_products.json');
-//     $jsonData = json_decode(File::get($jsonPath), true);
-
-//     if (!is_array($jsonData) || empty($jsonData)) {
-//         Log::error("❌ Invalid or empty JSON file.");
-//         return;
-//     }
-
-//     $jsonProducts = collect($jsonData)->keyBy('id');
-//     $existingBarcodes = \App\Models\Product::pluck('barcode')->toArray(); // existing Woo IDs
-//     $missingProducts = $jsonProducts
-//     ->except($existingBarcodes)
-//     ->except([30668]); 
-
-//     // dd($missingProducts);
-//     if ($missingProducts->isEmpty()) {
-//         Log::info("✅ No missing products found.");
-//         return;
-//     }
-
-//     $saved = 0;
-
-//     foreach ($missingProducts as $wooProductId => $productData) {
-//         try {
-//             Log::info("📥 Saving missing product ID: {$wooProductId} — {$productData['name']}");
-
-//             $product = $this->saveBasicProductDetails($productData);
-//             if ($product) {
-//                 $this->wooCommerceService->storeProductLanguage($product->id, $productData);
-
-//                 if (!empty($productData['variations'])) {
-//                     $this->storeProductVariants($product, $productData['variations']);
-//                 }
-
-//                 $saved++;
-//             }
-//         } catch (\Throwable $e) {
-//             Log::error("❌ Error saving product ID {$wooProductId}: " . $e->getMessage());
-//         }
-//     }
-
-//     Log::info("✅ Finished importing missing products. Total saved: {$saved}");
-//     return $saved;
-// }
-
-
-
-
-public function fetchSave()
-{
-    // Load JSON data
-    $jsonPath = storage_path('app/woocommerce_products.json');
-    $jsonData = json_decode(File::get($jsonPath), true);
-
-    // Get product from JSON by ID
-    // $response = collect($jsonData)->firstWhere('id', 18193);
-    $response = collect($jsonData)->firstWhere('slug', 'magnetic-clear-case-for-samsung-galaxy-s23-ultra');
-
-    dd($response);
-    if (!is_array($response) || isset($response['error'])) {
-        Log::error("WooCommerce API request failed");
-        return response()->json(['error' => 'Failed to fetch product'], 500);
-    }
-
-    Log::info("Fetched product: " . $response['name']);
-
-    // Save product details
-    $product = $this->saveBasicProductDetails($response);
-    // dd($product);
-
-    if ($product) {
-        // ✅ Store Product Language Details
-        $this->wooCommerceService->storeProductLanguage($product->id, $response);
-
-        // ✅ Store product variants
-        if (!empty($response['variations'])) {
-            Log::info("Processing variations for product: " . $response['name']);
-            $this->storeProductVariants($product, $response['variations']);
+        // dd($response);
+        if (!is_array($response) || isset($response['error'])) {
+            Log::error("WooCommerce API request failed");
+            return response()->json(['error' => 'Failed to fetch product'], 500);
         }
+
+        Log::info("Fetched product: " . $response['name']);
+
+        // Save product details
+        $product = $this->saveBasicProductDetails($response);
+        // dd($product);
+
+        if ($product) {
+            // ✅ Store Product Language Details
+            $this->wooCommerceService->storeProductLanguage($product->id, $response);
+
+            // ✅ Store product variants
+            if (!empty($response['variations'])) {
+                Log::info("Processing variations for product: " . $response['name']);
+                $this->storeProductVariants($product, $response['variations']);
+            }
+        }
+
+        return response()->json(['message' => 'Product imported successfully.']);
     }
 
-    return response()->json(['message' => 'Product imported successfully.']);
-}
-
-// public function fetchSave()
-// {
-//     $jsonPath = storage_path('app/woocommerce_products.json');
-//     $jsonData = json_decode(File::get($jsonPath), true);
-
-//     if (!is_array($jsonData) || empty($jsonData)) {
-//         Log::error("❌ WooCommerce product data is empty or invalid.");
-//         return 0;
-//     }
-
-//     $imported = 0;
-
-//     // 🔁 Chunk the product list (e.g. 10 per batch)
-//     $chunks = array_chunk($jsonData, 10);
-
-//     foreach ($chunks as $chunk) {
-//         foreach ($chunk as $response) {
-//             try {
-//                 $sku = $response['sku'] ?? null;
-
-//                 if (!$sku) {
-//                     Log::warning("⏭️ Skipping product without SKU: " . ($response['name'] ?? 'Unnamed'));
-//                     continue;
-//                 }
-
-//                 $existing = Product::where('barcode', $sku)->first();
-//                 if ($existing) {
-//                     Log::info("🔁 Skipping existing product with SKU: {$sku}");
-//                     continue;
-//                 }
-
-//                 $product = $this->saveBasicProductDetails($response);
-
-//                 if ($product) {
-//                     $this->wooCommerceService->storeProductLanguage($product->id, $response);
-
-//                     if (!empty($response['variations'])) {
-//                         Log::info("📦 Saving variants for: {$response['name']}");
-//                         $this->storeProductVariants($product, $response['variations']);
-//                     }
-
-//                     $imported++;
-//                     Log::info("✅ Imported product SKU: {$sku}");
-//                 }
-//             } catch (\Throwable $e) {
-//                 Log::error("❌ Failed to import product: " . ($response['name'] ?? 'Unknown') . " — " . $e->getMessage());
-//             }
-//         }
-
-//         // 💤 Optional: prevent rate-limiting or give CPU a break
-//         sleep(1);
-//     }
-
-//     Log::info("✅ Imported {$imported} products total.");
-//     return $imported;
-// }
 
 
 
@@ -642,21 +474,21 @@ private function storeProductVariants(Product $product, array $variations)
 
 
 
-public function deleteUnusedMedia(){
+// public function deleteUnusedMedia(){
 
-    $mediaRecords = DB::table('media')->get();
+//     $mediaRecords = DB::table('media')->get();
 
-    foreach ($mediaRecords as $media) {
-        $filePath = public_path($media->original_file); // Example: public/images/filename.jpg
+//     foreach ($mediaRecords as $media) {
+//         $filePath = public_path($media->original_file); // Example: public/images/filename.jpg
 
-        if (!File::exists($filePath)) {
-            DB::table('media')->where('id', $media->id)->delete();
-            echo "Deleted record ID: {$media->id}, File Missing: {$media->original_file}\n";
-        } else {
-            echo "File Exists: {$media->original_file}\n";
-        }
-    }
-}
+//         if (!File::exists($filePath)) {
+//             DB::table('media')->where('id', $media->id)->delete();
+//             echo "Deleted record ID: {$media->id}, File Missing: {$media->original_file}\n";
+//         } else {
+//             echo "File Exists: {$media->original_file}\n";
+//         }
+//     }
+// }
 
 
     

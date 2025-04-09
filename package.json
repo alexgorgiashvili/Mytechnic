@@ -7,8 +7,8 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "build-production": "mix --production",
-        "clean-chunks": "powershell -Command \"Remove-Item -Recurse -Force public\\frontend\\js\\chunks-165\"",
-        "copy-chunks": "powershell -Command \"Copy-Item public\\public\\frontend\\js\\chunks-165 public\\frontend\\js\\ -Recurse -Force\"",
+        "clean-chunks": "powershell -Command \"Remove-Item -Recurse -Force public\\frontend\\js\\chunks-193\"",
+        "copy-chunks": "powershell -Command \"Copy-Item public\\public\\frontend\\js\\chunks-193 public\\frontend\\js\\ -Recurse -Force\"",
         "postproduction": "npm run build-production && npm run clean-chunks && npm run copy-chunks"
     },
     "devDependencies": {

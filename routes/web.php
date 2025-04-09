@@ -55,8 +55,10 @@ Route::get('/credo/installment/status', [GeoPaymentController::class, 'credoInst
 
 Route::get('/woocommerce/products', [WooCommerceController::class, 'getAllProducts']);
 Route::get('/woocommerce/products/{id}', [WooCommerceController::class, 'getProductById']);
-Route::get('/fetch-save', [WooCommerceController::class, 'fetchSave']);
+Route::get('/fetch-save', [WooCommerceController::class, 'fetchSaveSingleProduct']);
 Route::get('/testing', [WooCommerceController::class, 'testing']);
+Route::get('/fetch-stocks', [WooCommerceController::class, 'testFetchProductStocks']);
+
 Route::get('/storeColors', [WooCommerceService::class, 'updateColorCodes']);
 
 
