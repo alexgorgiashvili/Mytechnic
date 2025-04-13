@@ -136,11 +136,22 @@
 								<div class="sg-color">
 									<h5>{{ lang.color }}:</h5>
 									<div v-for="(color, index) in productDetails.product_colors" :key="'color' + index">
-										<input type="radio" value="color1" :id="'color' + color.id" v-model="product_form.color_id" :value="color.id" @change="attributeSelect($event.target)"/>
-										<label :for="'color' + color.id">
-											<span :style="'background:' + color.code"></span>
-										</label>
+									<input 
+										type="radio" 
+										:id="'color' + color.id" 
+										:value="color.id" 
+										v-model="product_form.color_id" 
+										@change="attributeSelect()" 
+										:disabled="checkColorDisable(color)"
+									/>
+									<label 
+										:for="'color' + color.id" 
+										:class="{ 'disabled_radio': checkColorDisable(color) }"
+									>
+										<span :style="'background:' + color.code"></span>
+									</label>
 									</div>
+
 								</div>
 							</div>
 							<!-- sg-product-color -->
@@ -709,6 +720,7 @@ export default {
 			allowed_attributes: [],
 			attributes_fetched : false,
 			liveStockStatusKey: '', // new reactive property for stock text
+			invalid_colors: [],
 
 		};
 	},
@@ -828,46 +840,74 @@ export default {
 				special_discount_check: this.productDetails.product_stock.special_discount_check,
 			});
 		},
-		getAttributes()
-		{
-		let formData = {
-			color_id: this.product_form.color_id,
-			product_id: this.productDetails.id,
-			variant_ids: this.selected_stock
-		};
-		// console.log(formData);
 
-		let url = this.getUrl("find/variants");
-		axios.post(url, formData).then((response) => {
-			this.allowed_attributes = response.data.variants;
-			this.attributes_fetched = true;
-		})
-		},
-	
-		attributeSelect(el,index,value) {
+		checkColorDisable(color) {
+			return this.invalid_colors.includes(color.id);
+		}
+		,
+
+		getAttributes(colorCheck = false) {
+			let formData = {
+				color_id: this.product_form.color_id,
+				product_id: this.productDetails.id,
+				variant_ids: this.selected_stock
+			};
+
+			let url = this.getUrl("find/variants");
+			axios.post(url, formData).then((response) => {
+				this.allowed_attributes = response.data.variants;
+				this.attributes_fetched = true;
+
+				if (colorCheck && this.allowed_attributes.length === 0) {
+					// ❌ No valid combinations for this color — mark it as invalid
+					if (!this.invalid_colors.includes(this.product_form.color_id)) {
+						this.invalid_colors.push(this.product_form.color_id);
+					}
+					// Show stock out
+					this.liveStockStatusKey = 'stock_out';
+
+					// Optional: Unselect the color if needed
+					// this.product_form.color_id = null;
+				} else {
+					// ✅ Combinations exist — assume in stock (or override this later in fetchAttributeStock)
+					this.liveStockStatusKey = 'in_stock';
+				}
+			});
+		}
+
+
+		,
+		attributeSelect(el, index, value) {
 			let selected_attribute = 0;
 
 			if (this.product_form.attribute_values.length > 0) {
-			selected_attribute += this.product_form.attribute_values.length;
+				selected_attribute += this.product_form.attribute_values.length;
 			}
 
 			if (this.product_form.color_id) {
-			selected_attribute++;
+				selected_attribute++;
 			}
 
-			if (index)
-			{
-			this.selected_stock[index] = value;
+			// Set stock if coming from an attribute
+			if (index) {
+				this.selected_stock[index] = value;
 			}
+
+			// ✅ If all selectors are not yet selected, continue fetching
 			if (selected_attribute < this.productDetails.attribute_selector) {
-			if (selected_attribute+1 == this.productDetails.attribute_selector)
-			{
-				return this.getAttributes(value);
+				if (selected_attribute + 1 == this.productDetails.attribute_selector) {
+					// ✅ Pass true if it's a color select (index is null or undefined)
+					const isColor = typeof index === 'undefined' || index === null;
+					return this.getAttributes(isColor);
+				}
+				return false;
 			}
-			return false;
-			}
+
+			// ✅ Final step, fetch the stock
 			return this.fetchAttributeStock(value);
-		},
+		}
+		,
+
 		fetchAttributeStock(value) {
 			let formData = {
 				color_id: this.product_form.color_id,
@@ -939,6 +979,11 @@ export default {
 		}
 		return false;
 		},
+
+			
+
+
+
 		priceFind() {
 			let price = this.productDetails.price;
 

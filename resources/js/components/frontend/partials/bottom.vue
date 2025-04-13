@@ -6,7 +6,7 @@
 					<router-link :to="{ name: 'home' }"><img loading="lazy" :src="settings.footer_logo" alt="preloader" class="img-fluid" /> </router-link>
 				</div>
 				<div class="row">
-					<div class="col-sm-6 col-md-6" v-if="!addons.includes('ramdhani') && settings.seller_system == 1 && !authUser" :class="[classObj()]">
+					<!-- <div class="col-sm-6 col-md-6" v-if="!addons.includes('ramdhani') && settings.seller_system == 1 && !authUser" :class="[classObj()]">
 						<div class="footer-widget widget-border" v-if="!authUser && settings.seller_system == 1">
 							<h3>{{ lang.seller_options }}</h3>
 							<ul class="global-list">
@@ -80,7 +80,7 @@
 								>
 							</ul>
 						</div>
-					</div>
+					</div> -->
 					<div class="col-sm-6 col-md-6" :class="[classObj()]">
 						<div class="footer-widget widget-border">
 							<h3>{{ lang.useful_links }}</h3>

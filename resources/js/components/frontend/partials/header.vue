@@ -827,4 +827,12 @@ export default {
   height: 20px;
 }
 
+@media (max-width: 768px) {
+  .contact-info {
+    margin: 0px 0px 0px 30px;
+	font-size: 16px;
+  }
+}
+
+
 </style>
