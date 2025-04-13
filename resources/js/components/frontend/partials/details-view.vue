@@ -847,6 +847,7 @@ export default {
 		,
 
 		getAttributes(colorCheck = false) {
+			console.log(colorCheck);
 			let formData = {
 				color_id: this.product_form.color_id,
 				product_id: this.productDetails.id,
@@ -857,8 +858,11 @@ export default {
 			axios.post(url, formData).then((response) => {
 				this.allowed_attributes = response.data.variants;
 				this.attributes_fetched = true;
+				console.log(this.allowed_attributes.length);
 
+				
 				if (colorCheck && this.allowed_attributes.length === 0) {
+
 					// ❌ No valid combinations for this color — mark it as invalid
 					if (!this.invalid_colors.includes(this.product_form.color_id)) {
 						this.invalid_colors.push(this.product_form.color_id);
@@ -869,6 +873,8 @@ export default {
 					// Optional: Unselect the color if needed
 					// this.product_form.color_id = null;
 				} else {
+					console.log('else');
+
 					// ✅ Combinations exist — assume in stock (or override this later in fetchAttributeStock)
 					this.liveStockStatusKey = 'in_stock';
 				}
@@ -878,6 +884,19 @@ export default {
 
 		,
 		attributeSelect(el, index, value) {
+			let isColor = typeof index === 'undefined' || index === null;
+
+			if (isColor) {
+				// ✅ Reset attribute selections when color changes
+				this.selected_stock = {}; // or [] depending on your structure
+				this.product_form.attribute_values = [];
+
+				return this.getAttributes(true);
+			}
+
+			// Attribute selected
+			this.selected_stock[index] = value;
+
 			let selected_attribute = 0;
 
 			if (this.product_form.attribute_values.length > 0) {
@@ -888,27 +907,22 @@ export default {
 				selected_attribute++;
 			}
 
-			// Set stock if coming from an attribute
-			if (index) {
-				this.selected_stock[index] = value;
-			}
-
-			// ✅ If all selectors are not yet selected, continue fetching
 			if (selected_attribute < this.productDetails.attribute_selector) {
-				if (selected_attribute + 1 == this.productDetails.attribute_selector) {
-					// ✅ Pass true if it's a color select (index is null or undefined)
-					const isColor = typeof index === 'undefined' || index === null;
-					return this.getAttributes(isColor);
+				if (selected_attribute + 1 === this.productDetails.attribute_selector) {
+					return this.getAttributes(false);
 				}
 				return false;
 			}
 
-			// ✅ Final step, fetch the stock
 			return this.fetchAttributeStock(value);
 		}
+
+
 		,
 
 		fetchAttributeStock(value) {
+			console.log(value);
+
 			let formData = {
 				color_id: this.product_form.color_id,
 				product_id: this.productDetails.id,

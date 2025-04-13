@@ -9,7 +9,9 @@
         "build-production": "mix --production",
         "clean-chunks": "powershell -Command \"Remove-Item -Recurse -Force public\\frontend\\js\\chunks-193\"",
         "copy-chunks": "powershell -Command \"Copy-Item public\\public\\frontend\\js\\chunks-193 public\\frontend\\js\\ -Recurse -Force\"",
-        "postproduction": "npm run build-production && npm run clean-chunks && npm run copy-chunks"
+        "postproduction": "npm run build-production && npm run clean-chunks && npm run copy-chunks",
+        "pull": "git fetch origin && git reset --hard origin/main"
+
     },
     "devDependencies": {
         "@popperjs/core": "^2.10.2",
