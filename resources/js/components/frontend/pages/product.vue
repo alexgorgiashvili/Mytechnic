@@ -97,7 +97,7 @@ export default {
 		if (this.authUser) {
 			this.pushWishlists();
 		}
-		this.compareList();
+		// this.compareList();
 	},
 	computed: {
 		activeCurrency() {

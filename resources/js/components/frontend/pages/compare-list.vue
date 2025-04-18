@@ -104,7 +104,7 @@ export default {
 		shimmer,
 	},
 	mounted() {
-		this.compareList();
+		// this.compareList();
 	},
 	computed: {
 		compare() {

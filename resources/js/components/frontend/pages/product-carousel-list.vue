@@ -155,7 +155,7 @@ export default {
 		if (this.authUser) {
 			setTimeout(() => this.pushWishlists(), 2000);
 		}
-		this.compareList();
+		// this.compareList();
 	},
 	computed: {
 		activeCurrency() {
