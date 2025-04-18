@@ -36,10 +36,10 @@ const filterProducts = () => import(/* webpackPrefetch: true */
     '../components/frontend/pages/filter_sidebar');
 const flashSale = () => import(/* webpackPrefetch: true */
     '../components/frontend/pages/flash-sale');
-const compareList = () => import(/*webpackPrefetch: true */
-    '../components/frontend/pages/compare-list');
-    const shop = () => import(/* webpackPrefetch: true */
-        '../components/frontend/pages/shop');
+// const compareList = () => import(/*webpackPrefetch: true */
+//     '../components/frontend/pages/compare-list');
+//     const shop = () => import(/* webpackPrefetch: true */
+//         '../components/frontend/pages/shop');
         
 
 
@@ -297,27 +297,27 @@ export const routes = [
                     title: 'Cart'
                 }
             },
-            {
-                path: '/shop/:slug',
-                name: 'shop',
-                component: shop,
-                meta: {
-                    title: 'Shop'
-                }
-            },
+            // {
+            //     path: '/shop/:slug',
+            //     name: 'shop',
+            //     component: shop,
+            //     meta: {
+            //         title: 'Shop'
+            //     }
+            // },
             {
                 path: '/:pathMatch(.*)*',
                 name: '404',
                 component: error_404
             },
-            {
-                path: '/compare-list',
-                name: 'compare.list',
-                component: compareList,
-                meta: {
-                    title: 'Compare List'
-                }
-            },
+            // {
+            //     path: '/compare-list',
+            //     name: 'compare.list',
+            //     component: compareList,
+            //     meta: {
+            //         title: 'Compare List'
+            //     }
+            // },
 
                         // {
             //     path: '/campaign/:slug',

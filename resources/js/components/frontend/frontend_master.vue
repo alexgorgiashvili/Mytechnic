@@ -106,7 +106,7 @@ export default {
     this.$store.dispatch('services', this.services);
     this.$store.dispatch('settings', this.settings_data);
     this.$store.dispatch('pages', this.pages);
-    this.$store.dispatch('compareList', this.compare_list);
+    // this.$store.dispatch('compareList', this.compare_list);
     this.$store.dispatch('defaultCurrency', this.default_currency);
     this.$store.dispatch('homeComponents', this.home_components);
     this.$store.dispatch('defaultAssets', this.default_assets);
