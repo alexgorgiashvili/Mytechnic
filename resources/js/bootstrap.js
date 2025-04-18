@@ -31,9 +31,9 @@ window.app_path = getValueFromId('app_path');
  */
 
 
-import Echo from 'laravel-echo';
+// import Echo from 'laravel-echo';
 
-window.Pusher = require('pusher-js');
+// window.Pusher = require('pusher-js');
 
 /*window.Echo = new Echo({
     broadcaster: 'pusher',
@@ -41,12 +41,12 @@ window.Pusher = require('pusher-js');
     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     forceTLS: true
 });*/
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: getValueFromId("f_pusher_app_key"),
-    cluster: getValueFromId("f_pusher_app_cluster"),
-    forceTLS: true
-});
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: getValueFromId("f_pusher_app_key"),
+//     cluster: getValueFromId("f_pusher_app_cluster"),
+//     forceTLS: true
+// });
 
 function getValueFromId(id)
 {

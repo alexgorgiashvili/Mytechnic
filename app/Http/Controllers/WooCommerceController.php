@@ -41,12 +41,14 @@ class WooCommerceController extends Controller
     public function testFetchProductStocks()
     {
 
-        $productId= 36005;
+        $productId= 17785;
         // $variations = $this->wooCommerceService->getProductVariations($productId);
-        $stocks = $this->wooCommerceService->getAllProductStocks();  // Call the modified function
+        // $stocks = $this->wooCommerceService->getAllProductStocks(); 
+        $product = $this->wooCommerceService->getProductById($productId);
+
         // Log::info('Fetched Product Stocks:', $stocks);  // Log the stock data
 
-        dd($stocks);
+        dd($product);
         return response()->json($stocks);  // Return as a response for testing
     }
 

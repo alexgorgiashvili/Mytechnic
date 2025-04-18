@@ -84,8 +84,8 @@ const flashSale = () => import(/* webpackPrefetch: true */
 //     '../components/frontend/pages/addons/rewards');
 // const myWallet = () => import(/* webpackPrefetch: true */
 //     '../components/frontend/pages/user/wallet');
-const shop = () => import(/* webpackPrefetch: true */
-    '../components/frontend/pages/shop');
+// const shop = () => import(/* webpackPrefetch: true */
+//     '../components/frontend/pages/shop');
 // const followedShop = () => import(/* webpackPrefetch: true */
 //     '../components/frontend/pages/user/followed-shop');
 // const digitalProductOrders = () => import(/* webpackPrefetch: true */
@@ -329,19 +329,22 @@ export const routes = [
                     title: 'Cart'
                 }
             },
-            {
-                path: '/shop/:slug',
-                name: 'shop',
-                component: shop,
-                meta: {
-                    title: 'Shop'
-                }
-            },
+
             {
                 path: '/:pathMatch(.*)*',
                 name: '404',
                 component: error_404
             },
+
+            
+            // {
+            //     path: '/shop/:slug',
+            //     name: 'shop',
+            //     component: shop,
+            //     meta: {
+            //         title: 'Shop'
+            //     }
+            // },
 
                         // {
             //     path: '/affiliate-register',

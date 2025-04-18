@@ -38,77 +38,106 @@ class SyncWooStock extends Command
             $query->whereNull('last_stock_sync_at')
                   ->orWhere('last_stock_sync_at', '<', now()->subHours(2));
         })
-        ->has('stock') // ensure it has stock records
+        ->has('stock')
         ->orderBy('last_stock_sync_at')
         ->first();
-
+    
         if (!$product) {
             $this->info("No product found for syncing.");
+            Log::info("No product found for syncing.");
             return;
         }
-
+    
         $this->info("Syncing product ID: {$product->id} - {$product->name}");
-
+        Log::info("Syncing product ID: {$product->id} - {$product->name}");
+    
         $woo = new Client(
             env('WC_API_URL'),
             env('WC_CONSUMER_KEY'),
             env('WC_CONSUMER_SECRET'),
-            ['version' => 'wc/v3', 'timeout' => 20,'verify_ssl' => false]
+            ['version' => 'wc/v3', 'timeout' => 20, 'verify_ssl' => false]
         );
-
+    
         try {
             $wooProduct = $woo->get("products/{$product->barcode}");
-
+    
             $totalStock = 0;
-
+    
             if (!empty($wooProduct->variations)) {
-                // Product has variants
+                Log::info("Product {$product->id} has variants. Fetching all variant stock at once.");
+    
+                // Fetch all variations at once
+                $wooVariants = $woo->get("products/{$product->barcode}/variations?per_page=100");
+    
+                // Index Woo variants by SKU
+                $wooVariantsById = [];
+                foreach ($wooVariants as $variant) {
+                    $wooVariantsById[$variant->id] = $variant;
+                }
+                
+    
                 foreach ($product->stock as $stock) {
-                    $wooVariant = $woo->get("products/{$product->barcode}/variations/{$stock->sku}");
-                    $newQty = $wooVariant->stock_quantity ?? $stock->current_stock;
-
-                    if ($newQty < 0) {
-                        $newQty = 0; // Set to zero if negative
+                    $wooVariant = $wooVariantsById[$stock->sku] ?? null;
+    
+                    if (!$wooVariant) {
+                        Log::warning("WooCommerce variant not found for SKU: {$stock->sku} (Product ID: {$product->id})");
+                        continue;
                     }
-
+    
+                    $newQty = $wooVariant->stock_quantity ?? $stock->current_stock;
+    
+                    Log::info("Before Sync (Variant): {$stock->id} | SKU: {$stock->sku} | Old: {$stock->current_stock} | Woo: {$newQty}");
+    
+                    if ($newQty < 0) {
+                        $newQty = 0;
+                    }
+    
                     if ($stock->current_stock != $newQty) {
-                        Log::info("Stock update: {$stock->id} | Old: {$stock->current_stock} | New: {$newQty}");
+                        Log::info("Updating Stock (Variant): {$stock->id} | SKU: {$stock->sku} | New Qty: {$newQty}");
                         $stock->current_stock = $newQty;
                         $stock->save();
+                    } else {
+                        Log::info("No stock change (Variant): {$stock->id} | SKU: {$stock->sku}");
                     }
-
+    
                     $totalStock += $newQty;
                 }
             } else {
-                // No variants, just update main stock
+                Log::info("Product {$product->id} has no variants. Updating main stock.");
+    
                 $firstStock = $product->firstStock;
                 $oldQty = $firstStock->current_stock;
                 $newQty = $wooProduct->stock_quantity ?? 0;
-
+    
+                Log::info("Before Sync (No Variant): {$firstStock->id} | Old: {$oldQty} | Woo: {$newQty}");
+    
                 if ($newQty < 0) {
-                    $newQty = 0; // Set to zero if negative
+                    $newQty = 0;
                 }
-
-
+    
                 if ($oldQty != $newQty) {
-                    Log::info("Stock update (no variants): {$firstStock->id} | Old: {$oldQty} | New: {$newQty}");
+                    Log::info("Updating Stock (No Variant): {$firstStock->id} | New Qty: {$newQty}");
                     $firstStock->update(['current_stock' => $newQty]);
                 } else {
-                    Log::info("No stock change (no variants): {$firstStock->id} | Qty: {$oldQty}");
+                    Log::info("No stock change (No Variant): {$firstStock->id} | Qty: {$oldQty}");
                 }
-
-                $totalStock = $newQty; // Set the total stock for the product
+    
+                $totalStock = $newQty;
             }
-
-            // Now update the total stock on the product record
+    
             $product->current_stock = $totalStock;
             $product->last_stock_sync_at = now();
             $product->save();
-
+    
+            Log::info("Final Stock Sync: Product {$product->id} | Total Stock: {$totalStock}");
             $this->info("Stock updated successfully for product {$product->id} with total stock: {$totalStock}");
+    
         } catch (\Exception $e) {
             Log::error("Failed to sync stock for product {$product->id}: " . $e->getMessage());
-            $this->error("Error: " . $e->getMessage());
+            Log::error("Stack Trace: " . $e->getTraceAsString());
+            $this->error("Error syncing product {$product->id}: " . $e->getMessage());
         }
     }
+    
+    
 }

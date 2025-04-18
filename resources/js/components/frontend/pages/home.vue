@@ -105,6 +105,8 @@ export default {
   mounted() {
     this.loadComponents();
 
+    console.log(this.supportedComponents);
+
     if (this.homeResponse) {
       this.$store.commit('setShimmer', 0);
     }

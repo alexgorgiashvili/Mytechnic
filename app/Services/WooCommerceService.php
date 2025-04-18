@@ -70,14 +70,23 @@ class WooCommerceService
     /**
      * Fetch a single product by ID.
      */
+    // public function getProductById($id)
+    // {
+    //     $response = Http::withOptions([
+    //         'verify' => false, // Disables SSL verification
+    //     ])->withBasicAuth($this->consumerKey, $this->consumerSecret)
+    //         ->get("{$this->apiUrl}products/{$id}");
+
+    //     return $response->json();
+    // }
     public function getProductById($id)
     {
-        $response = Http::withOptions([
-            'verify' => false, // Disables SSL verification
-        ])->withBasicAuth($this->consumerKey, $this->consumerSecret)
-            ->get("{$this->apiUrl}products/{$id}");
-
-        return $response->json();
+        try {
+            return $this->woocommerce->get("products/{$id}");
+        } catch (\Exception $e) {
+            Log::error("WooCommerce API error: " . $e->getMessage());
+            return null;
+        }
     }
 
     public function getAllProductStocks($perPage = 30, $page = 1)

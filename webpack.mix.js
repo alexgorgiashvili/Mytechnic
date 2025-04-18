@@ -1,5 +1,6 @@
 const mix = require('laravel-mix');
 const CompressionPlugin = require("compression-webpack-plugin");
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 let css_plugin = 'public/frontend/css/';
 let js_plugin = 'public/frontend/js/';
@@ -23,13 +24,18 @@ mix.js('resources/js/app.js', 'public/frontend/js')
         publicPath: 'auto',
     },
     plugins: [
-        // new BundleAnalyzerPlugin(),      // load this package to see which plugins with its size detail
         new CompressionPlugin({             // very import to compress the assets
             filename: "[path][base].gz",
             algorithm: "gzip",
             test: /\.js$|\.css$|\.html$|\.svg$/,
             threshold: 10240,
             minRatio: 0.8
+        }),
+
+        new BundleAnalyzerPlugin({
+            analyzerMode: 'server',    // <- shows in browser
+            openAnalyzer: true,        // <- auto-opens browser
+            analyzerPort: 8888         // <- change if port is busy
         })
     ]
 });

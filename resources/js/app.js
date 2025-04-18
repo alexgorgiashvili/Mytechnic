@@ -32,11 +32,11 @@ Vue.component('v-select', vSelect);
 import Vuex from 'vuex'
 
 Vue.use(Vuex);
-import VuePlyr from 'vue-plyr';
+// import VuePlyr from 'vue-plyr';
 
-Vue.use(VuePlyr, {
-    plyr: {}
-});
+// Vue.use(VuePlyr, {
+//     plyr: {}
+// });
 
 import storeData from './store/index';
 import module from './store/module';
@@ -79,7 +79,7 @@ import Vue2Filters from 'vue2-filters';
 
 Vue.use(Vue2Filters);
 
-import { initializeApp } from "firebase/app";
+// import { initializeApp } from "firebase/app";
 
 function getValueFromId(id)
 {
@@ -93,18 +93,18 @@ function getValueFromId(id)
     return value;
 }
 
-const firebaseConfig = {
-    apiKey: getValueFromId('api_key'),
-    authDomain: getValueFromId('auth_domain'),
-    projectId: getValueFromId('project_id'),
-    storageBucket: getValueFromId('storage_bucket'),
-    messagingSenderId: getValueFromId('messaging_sender_id'),
-    appId: getValueFromId('app_id'),
-    measurementId: getValueFromId('measurement_id')
-};
+// const firebaseConfig = {
+//     apiKey: getValueFromId('api_key'),
+//     authDomain: getValueFromId('auth_domain'),
+//     projectId: getValueFromId('project_id'),
+//     storageBucket: getValueFromId('storage_bucket'),
+//     messagingSenderId: getValueFromId('messaging_sender_id'),
+//     appId: getValueFromId('app_id'),
+//     measurementId: getValueFromId('measurement_id')
+// };
 
 // Initialize Firebase
-const firebase_app = initializeApp(firebaseConfig);
+// const firebase_app = initializeApp(firebaseConfig);
 
 const router = new VueRouter({
     mode: 'history',

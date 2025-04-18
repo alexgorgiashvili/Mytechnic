@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /user/
+
+Sitemap: https://mytechnic.ge/sitemap.xml

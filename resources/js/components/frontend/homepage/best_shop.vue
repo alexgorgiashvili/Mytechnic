@@ -86,6 +86,8 @@ export default {
 	}),
 	mounted() {
 		this.checkHomeComponent("campaign");
+		// console.log("✅ best_shop component rendered");
+
 	},
 	watch: {
 		homeResponse() {
